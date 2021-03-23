@@ -26,7 +26,7 @@ const closeModal = function() {
 
 buttonCart.addEventListener('click', openModal);
 modalClose.addEventListener('click', closeModal);
-overlay.addEventListener('click', function(e) {
+overlay.addEventListener('click', e => {
 	if(!e.target.closest('.modal')) closeModal();
 });
 //-----------------------------------------------scroll smooth
