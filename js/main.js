@@ -17,6 +17,7 @@ const overlay  		   = document.querySelector('.overlay');
 const cartTableGoods   = document.querySelector('.cart-table__goods');
 const cardTableTotal   = document.querySelector('.card-table__total');
 const cartCount		   = document.querySelector('.cart-count');
+const modalHeader      = document.querySelector('.modal-header');
 
 setTimeout(function d(){sliderButtonNext.click(); setTimeout(d, 3000)}, 3000);
 
@@ -33,7 +34,19 @@ const getData  = async function() {
 const cart = {
 	cartGoods: [],
 	cartCounter(){
+		let but               = document.createElement('button');
+		but.className         = 'button clear-all-button';
+		but.innerHTML 		  = '<span class="button-text">Clear cart</span>';
+
+		if(cartCount && !modalHeader.querySelector('.clear-all-button')){
+			modalHeader.append(but);
+			but.addEventListener('click', () => this.clearCart());
+		}
 		cartCount.textContent = this.cartGoods.reduce((sum, item) => sum + item.count, 0);
+	},
+	clearCart(){
+		this.cartGoods.length = 0;
+		this.renderCart();
 	},
 	renderCart(){
 		cartTableGoods.textContent = "";
@@ -61,7 +74,6 @@ const cart = {
 		let o = this.cartGoods.find(obj => obj.id == id);
 		o.count--;
 		o.count <=0 ? this.deleteGood(o.id) : this.renderCart();
-
 	},
 	plusGood(id){
 		let o = this.cartGoods.find(obj => obj.id == id);
@@ -228,5 +240,46 @@ buttons.forEach(btn => {
 
 })
 //-----------------------------------------------banners event
+//-----------------------------------------------post data 4 day
+const modalForm  = document.querySelector('.modal-form');
+const cartBuy    = document.querySelector('.cart-buy');
+const modalInput = document.querySelectorAll('.modal-input');
+const postData   = userData => fetch('server.php', {method: 'POST', body  : userData});
 
+
+cartBuy.addEventListener('click', event => {
+	event.preventDefault();
+
+if(cart.cartGoods.length === 0){
+	alert('Корзина пуста, нефиг жать кнопку с пустыми корзинами');
+	return 0;
+} else if(!Array.from(modalInput).find(item => item.name == 'nameCustomer').value.trim()){
+		alert('Enter your Name');
+		return 0;
+		
+		} else {
+		if(!Array.from(modalInput).find(item => item.name == 'phoneCustomer').value.trim()){
+			alert('Enter your Phone number');
+			return 0;
+		}
+	}
+	const formData = new FormData(modalForm);
+	formData.append('cart', JSON.stringify(cart.cartGoods));
+	postData(formData)
+	.then(response => {
+		if(!response.ok){
+			alert('пришла ошибка ' + response.status)
+		} else {
+			alert('заказ отправлен, ждите ответа')
+		}
+	}).catch(error => {
+		alert('ошибочка вышла');
+		let er = new Error(error);
+		console.error(er);
+	}).finally(() => {
+		cart.clearCart();
+		modalForm.reset();
+		closeModal();
+	});
+});
 

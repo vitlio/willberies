@@ -11,6 +11,11 @@ img {
     max-width: 100%;
     height: auto;
 }
+.clear-all-button {
+    background-color: red;
+    display: block;
+    box-align: right;
+}
 
 .header {
     padding: 15px 0;
